@@ -1,10 +1,27 @@
 const express = require('express')
 const router = express.Router();
 
-const Helper = require('../data/helpers/projectModel')
+const Helper = require('../data/helpers/projectModel');
+const { json } = require('express');
 
 
-router.get('/:id', (req, res) => {
+// this one won't get all of the projects in the database
+
+router.get('/', (req, res) => {
+    Helper.get(req.query)
+    .then( project => {
+        res.status(200).json(project)
+    })
+    .catch( err => {
+        console.log(err)
+        res.status(500).json({
+            message: 'We had trouble getting your data'
+        })
+    })
+})
+
+
+router.get('/:id',ValidateProjectId,  (req, res) => {
     Helper.get(req.params.id)
     .then( project => {
         res.status(200).json(project)
@@ -17,7 +34,7 @@ router.get('/:id', (req, res) => {
     })
 })
 
-router.get('/:id/actions', (req, res) => {
+router.get('/:id/actions', ValidateProjectId, (req, res) => {
     Helper.getProjectActions(req.params.id)
     .then( project => {
         res.status(200).json(project)
@@ -45,7 +62,7 @@ router.post('/', (req, res)=> {
     })
 })
 
-router.put('/:id', (req, res) => {
+router.put('/:id', ValidateProjectId,  (req, res) => {
     const newUpdate = req.body
     Helper.update( req.params.id , newUpdate)
     .then( up => {
@@ -59,7 +76,7 @@ router.put('/:id', (req, res) => {
     })
 })
 
-router.delete('/:id', (req , res)=> {
+router.delete('/:id', ValidateProjectId, (req , res)=> {
     Helper.remove(req.params.id)
     .then( old => {
         res.status(200).json(old)
@@ -71,6 +88,17 @@ router.delete('/:id', (req , res)=> {
         })
     })
 })
+
+
+function ValidateProjectId(req, res, next){
+    if(req.method === 'null '){
+        res.status(400).json({
+            message: 'The ID you have entered is not found within our system'
+        })
+    } else {
+        next();
+    }
+}
 
 
 module.exports = router;
