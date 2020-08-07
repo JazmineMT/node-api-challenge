@@ -64,15 +64,19 @@ router.delete('/:id', ValidatePostId, (req, res)=>{
 
 
 function ValidatePostId(req, res, next){
-    if(res.headers.content-length ===  4 ){
-        res.status(400).json({
-            message: 'The ID you have entered is not found within our system'
-        })
-    } else {
-        next();
-    }
-}
+    Helper.get(req.params.id)
+    .then(id => {
+        if( id === null ){
+            res.status(400).json({
+                message: 'The ID you have entered is not found within our system'
+            })
+        } else {
+            next();
+        }
 
+    })
+   
+}
 
 
 

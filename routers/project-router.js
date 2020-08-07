@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router();
 
 const Helper = require('../data/helpers/projectModel');
-const { json } = require('express');
+const { json, request, response } = require('express');
 
 
 // this one won't get all of the projects in the database
@@ -22,6 +22,7 @@ router.get('/', (req, res) => {
 
 
 router.get('/:id',ValidateProjectId,  (req, res) => {
+    console.log(res.body)
     Helper.get(req.params.id)
     .then( project => {
         res.status(200).json(project)
@@ -91,13 +92,18 @@ router.delete('/:id', ValidateProjectId, (req , res)=> {
 
 
 function ValidateProjectId(req, res, next){
-    if(req.method === 'null '){
-        res.status(400).json({
-            message: 'The ID you have entered is not found within our system'
-        })
-    } else {
-        next();
-    }
+    Helper.get(req.params.id)
+    .then(id => {
+        if( id === null ){
+            res.status(400).json({
+                message: 'The ID you have entered is not found within our system'
+            })
+        } else {
+            next();
+        }
+
+    })
+   
 }
 
 
